@@ -1,5 +1,4 @@
-
-{
+{"homepage": "https://diendue48k.github.io/HBSTARS",
   "name": "hbstars",
   "private": true,
   "version": "11.0.0",
@@ -10,19 +9,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.462.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "lucide-react": "^0.462.0",
-    "xlsx": "^0.18.5",
-    "clsx": "^2.1.1",
-    "tailwind-merge": "^2.5.2"
+    "tailwind-merge": "^2.5.2",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.47",
+    "gh-pages": "^6.3.0",
+     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",
     "typescript": "^5.6.3",
     "vite": "^6.0.0"
