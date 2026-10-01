@@ -271,9 +271,15 @@ const App: React.FC = () => {
         soSanhText.push('Lệch tiền');
       }
       if (hasKetQuaKey) {
-        const kl = s.ketLuan || '';
-        // Compare values, treating empty differently if needed.
-        if (ketQuaOriginal.toLowerCase() !== kl.toLowerCase()) {
+        let klNormalized = (s.ketLuan || '').toLowerCase().trim();
+        let kqNormalized = ketQuaOriginal.toLowerCase().trim();
+        
+        // Normalize 'loại' and 'không đạt' to be the same
+        if (klNormalized === 'loại') klNormalized = 'không đạt';
+        if (kqNormalized === 'loại') kqNormalized = 'không đạt';
+
+        // Compare values
+        if (kqNormalized !== klNormalized) {
           soSanhText.push('Lệch KQ');
         }
       }
