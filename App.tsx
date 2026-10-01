@@ -808,9 +808,9 @@ const App: React.FC = () => {
         )}
       </main>
 
-      <footer className="py-12 bg-white border-t border-slate-100 text-center mt-auto">
-        <p className="text-slate-400 text-xs font-black uppercase tracking-[0.8em] mb-4">STARS DUE &bull; TRƯỜNG ĐẠI HỌC KINH TẾ - ĐH ĐÀ NẴNG</p>
-        <p className="text-slate-300 text-sm font-bold uppercase tracking-[0.2em] italic">Hệ thống quản lý học bổng KKHT phiên bản chuyên nghiệp v11.0 by Le Vinh Dien</p>
+      <footer className="py-10 bg-slate-50 border-t border-slate-100 text-center mt-auto flex flex-col items-center justify-center">
+        <p className="text-slate-500 text-sm font-bold uppercase tracking-widest mb-2">STARS DUE &bull; TRƯỜNG ĐẠI HỌC KINH TẾ - ĐH ĐÀ NẴNG</p>
+        <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">Hệ thống quản lý học bổng KKHT phiên bản chuyên nghiệp v11.0 &copy; by Le Vinh Dien</p>
       </footer>
 
       <style>{`
