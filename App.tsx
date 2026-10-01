@@ -180,8 +180,19 @@ const App: React.FC = () => {
         const ten = String(row['Tên'] || '').trim();
         const hoTen = hoLot ? `${hoLot} ${ten}` : (ten || String(row['Họ và tên'] || ''));
         
-        const uuTienStr = String(row['CTSV nhập ưu tiên(HB Tài năng Hoàn cảnh của sinh viên)'] || row['CTSV nhập ưu tiên'] || row['Hoàn cảnh của sinh viên'] || '').trim();
-        const isFalse = uuTienStr.toLowerCase() === 'false' || uuTienStr === '0' || uuTienStr === '';
+        const ctsv = String(row['CTSV nhập ưu tiên'] || row['CTSV nhập ưu tiên(HB Tài năng Hoàn cảnh của sinh viên)'] || '').trim();
+        const hc = String(row['Hoàn cảnh khó khăn'] || row['Hoàn cảnh của sinh viên'] || '').trim();
+        const tn = String(row['HB Tài năng'] || '').trim();
+        
+        let isTaiNang = false;
+        if (tn.toLowerCase() === 'x' || tn.toLowerCase() === 'true' || tn === '1' || tn.toLowerCase().includes('tài năng')) isTaiNang = true;
+        else if (ctsv.toLowerCase().includes('tài năng')) isTaiNang = true;
+        
+        let hoanCanhStr = hc;
+        if (!hoanCanhStr && ctsv && !ctsv.toLowerCase().includes('tài năng') && ctsv.toLowerCase() !== 'false' && ctsv !== '0') {
+          hoanCanhStr = ctsv;
+        }
+        if (hoanCanhStr.toLowerCase() === 'false' || hoanCanhStr === '0') hoanCanhStr = '';
         
         const thucTapTN = row['Khóa luận TN'] ?? row['Thực tập TN'] ?? row['Khóa luận/ Báo cáo thực tập/Đề án TN'];
 
@@ -194,8 +205,8 @@ const App: React.FC = () => {
           khoa: String(row['Khoa quản lý'] || row['Khoa'] || '').toUpperCase(),
           nganh: String(row['Ngành'] || '').trim(), 
           loaiHinhDaoTao: String(row['Loại hình đào tạo'] || 'S').trim().toUpperCase(),
-          hbTaiNangFlag: !isFalse && uuTienStr.toLowerCase().includes('tài năng'), 
-          hoanCanh: isFalse ? '' : uuTienStr,
+          hbTaiNangFlag: isTaiNang, 
+          hoanCanh: hoanCanhStr,
           quocTich: row['Quốc tịch'] || 'Việt Nam', 
           hocChuyenTiep: String(row['Học chuyển tiếp'] || '').toLowerCase() === 'x',
           coKhoaLuan: (String(thucTapTN).toLowerCase() === 'x' || String(thucTapTN) === '1' || String(thucTapTN).toLowerCase() === 'true'),
