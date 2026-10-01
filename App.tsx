@@ -245,29 +245,55 @@ const App: React.FC = () => {
   };
 
   const transformToOriginalWithComputed = (students: Student[], stepLabel: string) => {
-    // Find the exact key for "Số Tiền được nhận" by scanning ALL students to ensure we find it even if some are empty
-    let globalReceivedKey: string | undefined;
-    for (const s of studentData) {
-      const keys = Object.keys(s.originalRow || {});
-      globalReceivedKey = keys.find(k => {
-        const normalized = k.trim().toLowerCase();
-        return normalized === 'số tiền được nhận' || normalized === 'số tiền được nhân';
-      });
-      if (globalReceivedKey) break;
-    }
-
     return students.map(s => {
       const original = s.originalRow || {};
       const soTienHB = Math.round(s.soTienHB || 0);
       
-      let soSanh = '';
-      if (globalReceivedKey) {
-        const soTienDuocNhan = Number(original[globalReceivedKey]) || 0;
-        soSanh = soTienDuocNhan === soTienHB ? 'Khớp' : 'Lệch';
+      let soTienDuocNhan = 0;
+      let hasSoTienKey = false;
+      for (const k of Object.keys(original)) {
+        const normalized = k.trim().toLowerCase();
+        if (normalized === 'số tiền được nhận' || normalized === 'số tiền được nhân') {
+          soTienDuocNhan = Number(original[k]) || 0;
+          hasSoTienKey = true;
+          break;
+        }
       }
 
+      const soSanh = hasSoTienKey ? (soTienDuocNhan === soTienHB ? 'Khớp' : 'Lệch') : '';
+
+      const getValue = (keys: string[]) => {
+        for (const k of keys) {
+          if (original[k] !== undefined) return original[k];
+        }
+        return '';
+      };
+
       return {
-        ...original,
+        'STT': s.tt || getValue(['STT']),
+        'Họ lót': getValue(['Họ lót']),
+        'Tên': getValue(['Tên', 'Họ và tên']),
+        'Ngày sinh': s.ngaySinh || getValue(['Ngày sinh']),
+        'Mã sinh viên': s.maSV || getValue(['Mã sinh viên']),
+        'Lớp': s.lop || getValue(['Lớp']),
+        'Khoa quản lý': s.khoa || getValue(['Khoa quản lý', 'Khoa']),
+        'Ngành': s.nganh || getValue(['Ngành']),
+        'Loại hình đào tạo': s.loaiHinhDaoTao || getValue(['Loại hình đào tạo']),
+        'CTSV nhập ưu tiên': getValue(['CTSV nhập ưu tiên', 'CTSV nhập ưu tiên(HB Tài năng Hoàn cảnh của sinh viên)']),
+        'Quốc tịch': s.quocTich || getValue(['Quốc tịch']),
+        'Thực tập TN': getValue(['Thực tập TN', 'Khóa luận TN', 'Khóa luận/ Báo cáo thực tập/Đề án TN']),
+        'Tín chỉ học lần đầu': s.soTinChi || getValue(['Tín chỉ học lần đầu']),
+        'Tín chỉ nợ': s.soTinChiNo || getValue(['Tín chỉ nợ']),
+        'Điểm rèn luyện': s.diemRenLuyen || getValue(['Điểm rèn luyện']),
+        'Điểm Thang 4': s.diem4 || getValue(['Điểm Thang 4', 'Điểm học tập (Theo thang 4)']),
+        'Điểm Thang 10': s.diem10 || getValue(['Điểm Thang 10', 'Điểm học tập (Theo thang 10)']),
+        'Xếp loại học bổng': getValue(['Xếp loại học bổng']),
+        'Học phí L1': s.hocPhi || getValue(['Học phí L1', 'Học phí (ĐVT: Đồng)']),
+        'Số Tiền được nhận': getValue(['Số Tiền được nhận', 'Số Tiền được nhân']),
+        'Kết quả': getValue(['Kết quả']),
+        'Hoàn cảnh khó khăn': getValue(['Hoàn cảnh khó khăn', 'Hoàn cảnh của sinh viên']),
+        'HB Tài năng': getValue(['HB Tài năng']),
+        
         'Số tiền học bổng': soTienHB,
         'Cộng dồn tiền HB': Math.round(s.congDonTienHB || 0),
         'Số tiền phân bổ': Math.round(s.soTienPhanBo || 0),
