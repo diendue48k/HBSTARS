@@ -251,16 +251,37 @@ const App: React.FC = () => {
       
       let soTienDuocNhan = 0;
       let hasSoTienKey = false;
+      let ketQuaOriginal = '';
+      let hasKetQuaKey = false;
+      
       for (const k of Object.keys(original)) {
         const normalized = k.trim().toLowerCase();
         if (normalized === 'số tiền được nhận' || normalized === 'số tiền được nhân') {
           soTienDuocNhan = Number(original[k]) || 0;
           hasSoTienKey = true;
-          break;
+        }
+        if (normalized === 'kết quả' || normalized === 'ket qua') {
+          ketQuaOriginal = String(original[k] || '').trim();
+          hasKetQuaKey = true;
         }
       }
 
-      const soSanh = hasSoTienKey ? (soTienDuocNhan === soTienHB ? 'Khớp' : 'Lệch') : '';
+      let soSanhText: string[] = [];
+      if (hasSoTienKey && soTienDuocNhan !== soTienHB) {
+        soSanhText.push('Lệch tiền');
+      }
+      if (hasKetQuaKey) {
+        const kl = s.ketLuan || '';
+        // Compare values, treating empty differently if needed.
+        if (ketQuaOriginal.toLowerCase() !== kl.toLowerCase()) {
+          soSanhText.push('Lệch KQ');
+        }
+      }
+
+      let soSanh = '';
+      if (hasSoTienKey || hasKetQuaKey) {
+        soSanh = soSanhText.length > 0 ? soSanhText.join(', ') : 'Khớp';
+      }
 
       const getValue = (keys: string[]) => {
         for (const k of keys) {
