@@ -245,14 +245,26 @@ const App: React.FC = () => {
   };
 
   const transformToOriginalWithComputed = (students: Student[], stepLabel: string) => {
+    // Find the exact key for "Số Tiền được nhận" by scanning ALL students to ensure we find it even if some are empty
+    let globalReceivedKey: string | undefined;
+    for (const s of studentData) {
+      const keys = Object.keys(s.originalRow || {});
+      globalReceivedKey = keys.find(k => {
+        const normalized = k.trim().toLowerCase();
+        return normalized === 'số tiền được nhận' || normalized === 'số tiền được nhân';
+      });
+      if (globalReceivedKey) break;
+    }
+
     return students.map(s => {
       const original = s.originalRow || {};
       const soTienHB = Math.round(s.soTienHB || 0);
-      let soTienDuocNhan: number | null = null;
-      if ('Số Tiền được nhận' in original) soTienDuocNhan = Number(original['Số Tiền được nhận']) || 0;
-      else if ('Số tiền được nhận' in original) soTienDuocNhan = Number(original['Số tiền được nhận']) || 0;
       
-      const soSanh = soTienDuocNhan !== null ? (soTienDuocNhan === soTienHB ? 'Khớp' : 'Lệch') : '';
+      let soSanh = '';
+      if (globalReceivedKey) {
+        const soTienDuocNhan = Number(original[globalReceivedKey]) || 0;
+        soSanh = soTienDuocNhan === soTienHB ? 'Khớp' : 'Lệch';
+      }
 
       return {
         ...original,
