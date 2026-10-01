@@ -282,7 +282,8 @@ const App: React.FC = () => {
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summaryData), "TỔNG HỢP");
     (Object.keys(results) as ScholarshipStep[]).forEach(step => {
       const data = transformToOriginalWithComputed(results[step], STEP_NAMES[step]);
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), step);
+      const sheetName = STEP_NAMES[step].toUpperCase().replace('&', 'VÀ');
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), sheetName);
     });
     XLSX.writeFile(wb, `BAO_CAO_TONG_HOP_HK${semesterCode}.xlsx`);
   };
