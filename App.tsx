@@ -204,7 +204,8 @@ const App: React.FC = () => {
           diem10: Number(row['Điểm Thang 10'] || row['Điểm học tập (Theo thang 10)']) || 0, 
           diemRenLuyen: drl,
           hocPhi: Number(row['Học phí L1'] || row['Học phí (ĐVT: Đồng)']) || 0, 
-          xepLoaiHB: calculateScholarshipLevel(d4, drl)
+          xepLoaiHB: calculateScholarshipLevel(d4, drl),
+          originalRow: row
         } as Student;
       });
       setStudentData(parsed);
@@ -242,20 +243,25 @@ const App: React.FC = () => {
     return Array.from(new Set(studentData.map(s => extractKHoa(s.lop)))).sort();
   };
 
-  const transformTo29Columns = (students: Student[], stepLabel: string) => {
+  const transformToOriginalWithComputed = (students: Student[], stepLabel: string) => {
     return students.map(s => {
-      const { hoLot, ten } = splitName(s.hoTen);
+      const original = s.originalRow || {};
+      const soTienHB = Math.round(s.soTienHB || 0);
+      let soTienDuocNhan: number | null = null;
+      if ('Số Tiền được nhận' in original) soTienDuocNhan = Number(original['Số Tiền được nhận']) || 0;
+      else if ('Số tiền được nhận' in original) soTienDuocNhan = Number(original['Số tiền được nhận']) || 0;
+      
+      const soSanh = soTienDuocNhan !== null ? (soTienDuocNhan === soTienHB ? 'Khớp' : 'Lệch') : '';
+
       return {
-        'STT': s.tt, 'Họ lót': hoLot, 'Tên': ten, 'Ngày sinh': s.ngaySinh, 'Mã sinh viên': s.maSV, 'Lớp': s.lop,
-        'Khoa': s.khoa, 'Khóa': extractKHoa(s.lop), 'Ngành': s.nganh, 'Loại hình đào tạo': s.loaiHinhDaoTao,
-        'HB Tài năng': s.hbTaiNangFlag ? 'x' : '', 'Hoàn cảnh của sinh viên': s.hoanCanh, 'Quốc tịch': s.quocTich,
-        'Học chuyển tiếp': s.hocChuyenTiep ? 'x' : '', 'Khóa luận/ Báo cáo thực tập/Đề án TN': s.coKhoaLuan ? 'x' : '',
-        'Số tín chỉ lần đầu': s.soTinChi, 'Số tín chỉ nợ': s.soTinChiNo, 'Điểm học tập (Theo thang 4)': formatDecimal(s.diem4),
-        'Điểm học tập (Theo thang 10)': formatDecimal(s.diem10), 'Điểm rèn luyện': s.diemRenLuyen, 'Xếp loại học bổng': s.xepLoaiHB,
-        'Học phí (ĐVT: Đồng)': s.hocPhi, 'Mã học kỳ': semesterCode, 'Số tiền học bổng': Math.round(s.soTienHB || 0),
-        'Cộng dồn tiền HB': Math.round(s.congDonTienHB || 0), 'Số tiền phân bổ': Math.round(s.soTienPhanBo || 0),
-        'Số tiền phân bổ còn lại': Math.round(s.soTienPhanBoConLai || 0), 'Kết luận': `${s.ketLuan} (${stepLabel})`,
-        'Ghi chú': s.ghiChu || ''
+        ...original,
+        'Số tiền học bổng': soTienHB,
+        'Cộng dồn tiền HB': Math.round(s.congDonTienHB || 0),
+        'Số tiền phân bổ': Math.round(s.soTienPhanBo || 0),
+        'Số tiền phân bổ còn lại': Math.round(s.soTienPhanBoConLai || 0),
+        'Kết luận': `${s.ketLuan} (${stepLabel})`,
+        'Ghi chú': s.ghiChu || '',
+        'So sánh': soSanh
       };
     });
   };
@@ -270,11 +276,11 @@ const App: React.FC = () => {
         if (m && (!found || (m.ketLuan === 'Đạt' && found.ketLuan !== 'Đạt'))) { found = m; stepName = STEP_NAMES[k]; }
         if (m?.ketLuan === 'Đạt') break;
       }
-      return transformTo29Columns([found || s], stepName)[0];
+      return transformToOriginalWithComputed([found || s], stepName)[0];
     });
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summaryData), "TỔNG HỢP");
     (Object.keys(results) as ScholarshipStep[]).forEach(step => {
-      const data = transformTo29Columns(results[step], STEP_NAMES[step]);
+      const data = transformToOriginalWithComputed(results[step], STEP_NAMES[step]);
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), step);
     });
     XLSX.writeFile(wb, `BAO_CAO_TONG_HOP_HK${semesterCode}.xlsx`);
