@@ -115,7 +115,8 @@ const App: React.FC = () => {
     }
     const ws = XLSX.utils.json_to_sheet(data);
     XLSX.utils.book_append_sheet(wb, ws, "Dữ liệu");
-    XLSX.writeFile(wb, `MAU_${type}.xlsx`);
+    const fileName = type === 'BUDGET_CLASS' ? 'MAU_QUY_CHUNG.xlsx' : (type === 'BUDGET_MAJOR' ? 'MAU_NGANH_HOC.xlsx' : 'MAU_SINH_VIEN.xlsx');
+    XLSX.writeFile(wb, fileName);
   };
 
   const handleBudgetUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'CLASS' | 'MAJOR') => {
@@ -377,7 +378,7 @@ const App: React.FC = () => {
     ws['!merges'] = merges;
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "5-VK");
-    XLSX.writeFile(wb, `MAU_5_VK_HK${semesterCode}.xlsx`);
+    XLSX.writeFile(wb, `MAU_5_VUOT_KHO_HK${semesterCode}.xlsx`);
   };
 
   const exportAdministrativeAcademic = () => {
@@ -416,7 +417,7 @@ const App: React.FC = () => {
     ws['!merges'] = merges;
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "4-HTRL");
-    XLSX.writeFile(wb, `MAU_4_HTRL_HK${semesterCode}.xlsx`);
+    XLSX.writeFile(wb, `MAU_4_HOC_TAP_REN_LUYEN_HK${semesterCode}.xlsx`);
   };
 
   const totalStats = useMemo(() => {
@@ -634,9 +635,9 @@ const App: React.FC = () => {
               <div className="flex flex-col gap-4 relative z-10 w-full lg:w-auto">
                 <button onClick={exportMasterExcel} className="bg-white border-2 px-8 py-4 rounded-xl font-black text-xs flex items-center justify-center gap-4 shadow-xl uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95" style={{ color: COLORS.blue, borderColor: COLORS.blue }}><FileSpreadsheet size={20} /> XUẤT TỔNG HỢP 5 SHEET (29 CỘT)</button>
                 <div className="grid grid-cols-2 gap-4">
-                  <button onClick={() => exportAdministrativeTN_QT(ScholarshipStep.TALENT, 'MAU_5_TN')} className="bg-orange-50 px-6 py-4 rounded-xl font-black text-xs text-orange-600 border border-orange-100 hover:bg-orange-100 transition-all uppercase tracking-widest">MẪU 5-TÀI NĂNG</button>
+                  <button onClick={() => exportAdministrativeTN_QT(ScholarshipStep.TALENT, 'MAU_5_TAI_NANG')} className="bg-orange-50 px-6 py-4 rounded-xl font-black text-xs text-orange-600 border border-orange-100 hover:bg-orange-100 transition-all uppercase tracking-widest">MẪU 5-TÀI NĂNG</button>
                   <button onClick={exportAdministrativeHardship} className="bg-emerald-50 px-6 py-4 rounded-xl font-black text-xs text-emerald-600 border border-emerald-100 hover:bg-emerald-100 transition-all uppercase tracking-widest">MẪU 5-VƯỢT KHÓ</button>
-                  <button onClick={() => exportAdministrativeTN_QT(ScholarshipStep.INTERNATIONAL, 'MAU_4_QT')} className="bg-blue-50 px-6 py-4 rounded-xl font-black text-xs text-blue-600 border border-blue-100 hover:bg-blue-100 transition-all uppercase tracking-widest">MẪU 4-QUỐC TẾ</button>
+                  <button onClick={() => exportAdministrativeTN_QT(ScholarshipStep.INTERNATIONAL, 'MAU_4_QUOC_TE')} className="bg-blue-50 px-6 py-4 rounded-xl font-black text-xs text-blue-600 border border-blue-100 hover:bg-blue-100 transition-all uppercase tracking-widest">MẪU 4-QUỐC TẾ</button>
                   <button onClick={exportAdministrativeAcademic} className="bg-slate-50 px-6 py-4 rounded-xl font-black text-xs text-slate-600 border border-slate-100 hover:bg-slate-100 transition-all uppercase tracking-widest">MẪU 4-HT&RL</button>
                 </div>
               </div>
