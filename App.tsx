@@ -63,10 +63,30 @@ const App: React.FC = () => {
         { 'STT': 3, 'Nội dung': 'Học bổng Quốc tế', 'Mã học kỳ': semesterCode, 'Khóa 48K': 200000000, 'Khóa 49K': 200000000, 'Khóa 50K': 200000000, 'Khóa 51K': 200000000 }
       ];
     } else if (type === 'BUDGET_MAJOR') {
-      const allMajors = ['Kinh tế', 'Kế toán', 'Kiểm toán', 'Quản trị kinh doanh', 'Marketing', 'Tài chính', 'Ngân hàng', 'Luật', 'Du lịch'];
-      data = allMajors.map((m, i) => ({
-        'STT': i + 1, 'Ngành': m, 'Mã học kỳ': semesterCode, 'Khóa 48K': 400000000, 'Khóa 49K': 350000000, 'Khóa 50K': 300000000, 'Khóa 51K': 300000000
-      }));
+      const allMajors = [
+        { id: 7340205, name: 'Công nghệ tài chính' }, { id: 7340405, name: 'Hệ thống thông tin quản lý' },
+        { id: 7460108, name: 'Khoa học dữ liệu' }, { id: 7340120, name: 'Kinh doanh quốc tế' },
+        { id: 7340121, name: 'Kinh doanh thương mại' }, { id: 7310101, name: 'Kinh tế' },
+        { id: 7340302, name: 'Kiểm toán' }, { id: 7340301, name: 'Kế toán' },
+        { id: 7380101, name: 'Luật' }, { id: 7380107, name: 'Luật kinh tế' },
+        { id: 7340115, name: 'Marketing' }, { id: 7310205, name: 'Quản lý nhà nước' },
+        { id: 7810103, name: 'Quản trị dịch vụ du lịch và lữ hành' }, { id: 7810201, name: 'Quản trị khách sạn' },
+        { id: 7340101, name: 'Quản trị kinh doanh' }, { id: 7340404, name: 'Quản trị nhân lực' },
+        { id: 7340122, name: 'Thương mại điện tử' }, { id: 7310107, name: 'Thống kê kinh tế' },
+        { id: 7340201, name: 'Tài chính - Ngân hàng' }
+      ];
+      data = [];
+      [48, 49, 50, 51].forEach(k => {
+        allMajors.forEach(m => {
+          data.push({
+            HOC_KY: semesterCode,
+            KHOA_HOC: k,
+            MA_NGANH_TS: m.id,
+            TEN_NGANH_TS: m.name,
+            SO_TIEN_PHAN_BO: 100000000
+          });
+        });
+      });
     } else {
       const khoas = ['48K', '49K', '50K', '51K'];
       for (let i = 1; i <= 1500; i++) {
@@ -106,14 +126,28 @@ const App: React.FC = () => {
       const data = new Uint8Array(event.target?.result as ArrayBuffer);
       const workbook = XLSX.read(data, { type: 'array' });
       const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]) as any[];
-      const parsed = json.map((row: any) => ({
-        stt: row['STT'] || 0, noiDung: row['Nội dung'] || '', nganh: row['Ngành'] || '', 
-        maHocKy: String(row['Mã học kỳ'] || semesterCode),
-        phanBo: Object.keys(row).reduce((acc: any, key) => { 
-          if (key.includes('Khóa')) acc[key.trim().toLowerCase()] = Number(row[key]) || 0; 
-          return acc; 
-        }, {})
-      }));
+      let parsed: any[] = [];
+      if (type === 'MAJOR' && json.length > 0 && ('TEN_NGANH_TS' in json[0])) {
+        const grouped = new Map();
+        json.forEach(row => {
+          const nganh = row['TEN_NGANH_TS'] || '';
+          if (!grouped.has(nganh)) {
+            grouped.set(nganh, { nganh, phanBo: {} });
+          }
+          const khoaStr = `khóa ${row['KHOA_HOC']}k`.toLowerCase();
+          grouped.get(nganh).phanBo[khoaStr] = Number(row['SO_TIEN_PHAN_BO']) || 0;
+        });
+        parsed = Array.from(grouped.values());
+      } else {
+        parsed = json.map((row: any) => ({
+          stt: row['STT'] || 0, noiDung: row['Nội dung'] || '', nganh: row['Ngành'] || '', 
+          maHocKy: String(row['Mã học kỳ'] || semesterCode),
+          phanBo: Object.keys(row).reduce((acc: any, key) => { 
+            if (key.includes('Khóa')) acc[key.trim().toLowerCase()] = Number(row[key]) || 0; 
+            return acc; 
+          }, {})
+        }));
+      }
       if (type === 'CLASS') setBudgetClassData(parsed); else setBudgetMajorData(parsed);
       showNotify("Nhập ngân sách thành công.");
     };
