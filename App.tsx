@@ -278,6 +278,10 @@ const App: React.FC = () => {
         if (klNormalized === 'loại') klNormalized = 'không đạt';
         if (kqNormalized === 'loại') kqNormalized = 'không đạt';
 
+        // Normalize 'dự phòng' and 'đạt' to be the same
+        if (klNormalized === 'dự phòng') klNormalized = 'đạt';
+        if (kqNormalized === 'dự phòng') kqNormalized = 'đạt';
+
         // Compare values
         if (kqNormalized !== klNormalized) {
           soSanhText.push('Lệch KQ');
