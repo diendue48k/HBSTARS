@@ -115,7 +115,7 @@ export const processScholarship = (
         soTienPhanBo: phanBoHienTai, 
         soTienPhanBoConLai: phanBoHienTai - runningLuyKe[khoaKey],
         ketLuan: 'Đạt', 
-        ghiChu: isOverBudget ? 'Thiếu tiền (Vượt quỹ)' : ''
+        ghiChu: [s.ghiChu, isOverBudget ? 'Thiếu tiền (Vượt quỹ)' : ''].filter(Boolean).join('; ')
       });
     });
   } else {
@@ -164,7 +164,7 @@ export const processScholarship = (
               soTienPhanBo: phanBoTotal, 
               soTienPhanBoConLai: phanBoTotal - currentSpent, 
               ketLuan: 'Đạt', 
-              ghiChu: isOverBudget ? 'Ưu tiên tối thiểu (Vượt quỹ)' : 'Ưu tiên tối thiểu' 
+              ghiChu: [topInType.ghiChu, isOverBudget ? 'Ưu tiên tối thiểu (Vượt quỹ)' : 'Ưu tiên tối thiểu'].filter(Boolean).join('; ') 
             });
           }
         });
@@ -175,20 +175,20 @@ export const processScholarship = (
           const remaining = phanBoTotal - currentSpent;
 
           if (isExhausted) {
-            results.push({ ...s, soTienHB: 0, congDonTienHB: currentSpent, soTienPhanBo: phanBoTotal, soTienPhanBoConLai: phanBoTotal - currentSpent, ketLuan: 'Dự phòng', ghiChu: 'Hết ngân sách' });
+            results.push({ ...s, soTienHB: 0, congDonTienHB: currentSpent, soTienPhanBo: phanBoTotal, soTienPhanBoConLai: phanBoTotal - currentSpent, ketLuan: 'Dự phòng', ghiChu: [s.ghiChu, 'Hết ngân sách'].filter(Boolean).join('; ') });
             return;
           }
 
           if (amount <= remaining) {
             currentSpent += amount;
-            results.push({ ...s, soTienHB: amount, congDonTienHB: currentSpent, soTienPhanBo: phanBoTotal, soTienPhanBoConLai: phanBoTotal - currentSpent, ketLuan: 'Đạt', ghiChu: 'Xếp hạng điểm' });
+            results.push({ ...s, soTienHB: amount, congDonTienHB: currentSpent, soTienPhanBo: phanBoTotal, soTienPhanBoConLai: phanBoTotal - currentSpent, ketLuan: 'Đạt', ghiChu: [s.ghiChu, 'Xếp hạng điểm'].filter(Boolean).join('; ') });
           } else if (remaining >= 0.5 * amount) {
             currentSpent += amount;
             isExhausted = true; 
-            results.push({ ...s, soTienHB: amount, congDonTienHB: currentSpent, soTienPhanBo: phanBoTotal, soTienPhanBoConLai: phanBoTotal - currentSpent, ketLuan: 'Đạt', ghiChu: 'Dư > 50% HP' });
+            results.push({ ...s, soTienHB: amount, congDonTienHB: currentSpent, soTienPhanBo: phanBoTotal, soTienPhanBoConLai: phanBoTotal - currentSpent, ketLuan: 'Đạt', ghiChu: [s.ghiChu, 'Dư > 50% HP'].filter(Boolean).join('; ') });
           } else {
             isExhausted = true; 
-            results.push({ ...s, soTienHB: 0, congDonTienHB: currentSpent, soTienPhanBo: phanBoTotal, soTienPhanBoConLai: phanBoTotal - currentSpent, ketLuan: 'Dự phòng', ghiChu: 'Hết ngân sách' });
+            results.push({ ...s, soTienHB: 0, congDonTienHB: currentSpent, soTienPhanBo: phanBoTotal, soTienPhanBoConLai: phanBoTotal - currentSpent, ketLuan: 'Dự phòng', ghiChu: [s.ghiChu, 'Hết ngân sách'].filter(Boolean).join('; ') });
           }
         });
       });
@@ -196,7 +196,7 @@ export const processScholarship = (
   }
 
   ineligible.forEach(s => {
-    results.push({ ...s, soTienHB: 0, ketLuan: 'Loại', ghiChu: s.tempReason });
+    results.push({ ...s, soTienHB: 0, ketLuan: 'Loại', ghiChu: [s.ghiChu, s.tempReason].filter(Boolean).join('; ') });
   });
 
   return results;
