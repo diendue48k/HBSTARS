@@ -89,7 +89,7 @@ const App: React.FC = () => {
       });
     } else {
       const khoas = ['48K', '49K', '50K', '51K'];
-      for (let i = 1; i <= 1500; i++) {
+      for (let i = 1; i <= 150; i++) {
         const k = khoas[i % 4];
         data.push({
           'STT': i,
@@ -101,7 +101,7 @@ const App: React.FC = () => {
           'Khoa quản lý': 'KINH TẾ',
           'Ngành': 'Kinh tế',
           'Loại hình đào tạo': 'S',
-          'CTSV nhập ưu tiên(HB Tài năng Hoàn cảnh của sinh viên)': i % 10 === 0 ? 'Tài năng' : (i % 15 === 0 ? 'Hộ nghèo' : false),
+          'CTSV nhập ưu tiên': '',
           'Quốc tịch': 'Việt Nam',
           'Khóa luận TN': false,
           'Tín chỉ học lần đầu': 20,
@@ -109,7 +109,12 @@ const App: React.FC = () => {
           'Điểm rèn luyện': 85,
           'Điểm Thang 4': 3.5,
           'Điểm Thang 10': 8.75,
-          'Học phí L1': 15000000
+          'Xếp loại học bổng': '',
+          'Học phí L1': 15000000,
+          'Số Tiền được nhận': '',
+          'Kết quả': '',
+          'Hoàn cảnh khó khăn': i % 15 === 0 ? 'Hộ nghèo' : '',
+          'HB Tài năng': i % 10 === 0 ? 'x' : ''
         });
       }
     }
