@@ -22,6 +22,7 @@ const App: React.FC = () => {
   const [budgetClassData, setBudgetClassData] = useState<BudgetEntry[]>([]);
   const [budgetMajorData, setBudgetMajorData] = useState<BudgetEntry[]>([]);
   const [studentData, setStudentData] = useState<Student[]>([]);
+  const [transferData, setTransferData] = useState<any[]>([]);
   const [results, setResults] = useState<Record<ScholarshipStep, Student[]>>({
     [ScholarshipStep.TALENT]: [],
     [ScholarshipStep.HARDSHIP]: [],
@@ -101,9 +102,8 @@ const App: React.FC = () => {
           'Khoa quản lý': 'KINH TẾ',
           'Ngành': 'Kinh tế',
           'Loại hình đào tạo': 'S',
-          'CTSV nhập ưu tiên': '',
           'Quốc tịch': 'Việt Nam',
-          'Khóa luận TN': false,
+          'Khóa luận TN': i % 8 === 0 ? 1 : 0,
           'Tín chỉ học lần đầu': 20,
           'Tín chỉ nợ': 0,
           'Điểm rèn luyện': 85,
@@ -156,6 +156,21 @@ const App: React.FC = () => {
       }
       if (type === 'CLASS') setBudgetClassData(parsed); else setBudgetMajorData(parsed);
       showNotify("Nhập ngân sách thành công.");
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = '';
+  };
+
+  const handleTransferUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const data = new Uint8Array(event.target?.result as ArrayBuffer);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]) as any[];
+      setTransferData(json);
+      showNotify(`Đã nhập danh sách chuyển ngành (${json.length} dòng).`);
     };
     reader.readAsArrayBuffer(file);
     e.target.value = '';
@@ -236,15 +251,46 @@ const App: React.FC = () => {
     if (studentData.length === 0) return;
     setIsProcessing(true);
     setTimeout(() => {
+      const currentStudents = JSON.parse(JSON.stringify(studentData)) as Student[];
+      
+      if (transferData.length > 0) {
+        currentStudents.forEach(s => {
+          const transferRecord = transferData.find(t => String(t['MSV']) === s.maSV || String(t['Mã sinh viên']) === s.maSV);
+          if (transferRecord) {
+             const nganhCu = String(transferRecord['Ngành ban đầu'] || '').trim();
+             const lopCu = String(transferRecord['Lớp ban đầu'] || '').trim();
+             const khoaCu = String(transferRecord['Khoa ban đầu'] || '').trim().toUpperCase();
+             
+             let changed = false;
+             if (nganhCu && nganhCu !== s.nganh) {
+               s.nganh = nganhCu;
+               changed = true;
+             }
+             if (lopCu && lopCu !== s.lop) {
+               s.lop = lopCu;
+               changed = true;
+             }
+             if (khoaCu && khoaCu !== s.khoa) {
+               s.khoa = khoaCu;
+               changed = true;
+             }
+             
+             if (changed) {
+               s.ghiChu = (s.ghiChu ? s.ghiChu + '; ' : '') + 'Xét theo ngành cũ';
+             }
+          }
+        });
+      }
+
       const rSet = new Set<string>();
       const bCombined = [...budgetClassData, ...budgetMajorData];
-      const talent = processScholarship(ScholarshipStep.TALENT, studentData, bCombined, rSet);
+      const talent = processScholarship(ScholarshipStep.TALENT, currentStudents, bCombined, rSet);
       talent.filter(s => s.ketLuan === 'Đạt').forEach(s => rSet.add(s.maSV));
-      const hardship = processScholarship(ScholarshipStep.HARDSHIP, studentData, bCombined, rSet);
+      const hardship = processScholarship(ScholarshipStep.HARDSHIP, currentStudents, bCombined, rSet);
       hardship.filter(s => s.ketLuan === 'Đạt').forEach(s => rSet.add(s.maSV));
-      const international = processScholarship(ScholarshipStep.INTERNATIONAL, studentData, bCombined, rSet);
+      const international = processScholarship(ScholarshipStep.INTERNATIONAL, currentStudents, bCombined, rSet);
       international.filter(s => s.ketLuan === 'Đạt').forEach(s => rSet.add(s.maSV));
-      const academic = processScholarship(ScholarshipStep.ACADEMIC, studentData, bCombined, rSet);
+      const academic = processScholarship(ScholarshipStep.ACADEMIC, currentStudents, bCombined, rSet);
       setResults({ 
         [ScholarshipStep.TALENT]: talent, [ScholarshipStep.HARDSHIP]: hardship, 
         [ScholarshipStep.INTERNATIONAL]: international, [ScholarshipStep.ACADEMIC]: academic 
@@ -326,7 +372,6 @@ const App: React.FC = () => {
         'Khoa quản lý': s.khoa || getValue(['Khoa quản lý', 'Khoa']),
         'Ngành': s.nganh || getValue(['Ngành']),
         'Loại hình đào tạo': s.loaiHinhDaoTao || getValue(['Loại hình đào tạo']),
-        'CTSV nhập ưu tiên': getValue(['CTSV nhập ưu tiên', 'CTSV nhập ưu tiên(HB Tài năng Hoàn cảnh của sinh viên)']),
         'Quốc tịch': s.quocTich || getValue(['Quốc tịch']),
         'Thực tập TN': getValue(['Thực tập TN', 'Khóa luận TN', 'Khóa luận/ Báo cáo thực tập/Đề án TN']),
         'Tín chỉ học lần đầu': s.soTinChi || getValue(['Tín chỉ học lần đầu']),
@@ -600,7 +645,7 @@ const App: React.FC = () => {
                   placeholder="Mã học kỳ"
               />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
               {[ {id: 'CLASS', label: 'Ngân sách Quỹ Chung', data: budgetClassData}, 
                  {id: 'MAJOR', label: 'Ngân sách Ngành học', data: budgetMajorData} ].map(t => (
                   <div key={t.id} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-all border-l-4 border-l-orange-500">
@@ -620,6 +665,22 @@ const App: React.FC = () => {
                     </div>
                   </div>
               ))}
+
+              <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-all border-l-4 border-l-purple-500">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-sm font-black text-slate-700 uppercase">DS Chuyển ngành</h3>
+                    <p className="text-xs text-slate-400 mt-1">{transferData.length ? `Đã nạp ${transferData.length} SV` : 'Không bắt buộc'}</p>
+                  </div>
+                  <Users size={18} className="text-purple-500" />
+                </div>
+                <div className="flex gap-2 w-full">
+                  <label className="flex-1 px-2 py-2.5 text-sm font-black bg-purple-50 text-purple-600 rounded-xl cursor-pointer hover:bg-purple-100 transition-colors text-center uppercase tracking-widest border border-purple-100">
+                    <input type="file" className="hidden" onChange={handleTransferUpload} />
+                    TẢI FILE EXCEL LÊN
+                  </label>
+                </div>
+              </div>
               
               <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-all border-l-4 border-l-emerald-500">
                 <div className="flex justify-between items-start mb-4">
