@@ -54,7 +54,7 @@ const App: React.FC = () => {
     setNotification({ message, type });
   };
 
-  const downloadTemplate = (type: 'BUDGET_CLASS' | 'BUDGET_MAJOR' | 'STUDENT') => {
+  const downloadTemplate = (type: 'BUDGET_CLASS' | 'BUDGET_MAJOR' | 'STUDENT' | 'STUDENT_TRANSFER') => {
     const wb = XLSX.utils.book_new();
     let data: any[] = [];
     if (type === 'BUDGET_CLASS') {
@@ -88,7 +88,7 @@ const App: React.FC = () => {
           });
         });
       });
-    } else {
+    } else if (type === 'STUDENT') {
       const khoas = ['48K', '49K', '50K', '51K'];
       for (let i = 1; i <= 150; i++) {
         const k = khoas[i % 4];
@@ -117,10 +117,14 @@ const App: React.FC = () => {
           'HB Tài năng': i % 10 === 0 ? 'x' : ''
         });
       }
+    } else if (type === 'STUDENT_TRANSFER') {
+      data = [
+        { 'STT': 1, 'MSV': '49K123', 'Họ lót': 'Nguyễn Văn', 'Tên': 'A', 'Lớp ban đầu': '49K.S', 'Lớp mới': '49K.T', 'Ngành ban đầu': 'Kinh tế', 'Ngành mới': 'Tài chính - Ngân hàng', 'Khoa mới': 'TÀI CHÍNH' }
+      ];
     }
     const ws = XLSX.utils.json_to_sheet(data);
     XLSX.utils.book_append_sheet(wb, ws, "Dữ liệu");
-    const fileName = type === 'BUDGET_CLASS' ? 'MAU_QUY_CHUNG.xlsx' : (type === 'BUDGET_MAJOR' ? 'MAU_NGANH_HOC.xlsx' : 'MAU_SINH_VIEN.xlsx');
+    const fileName = type === 'BUDGET_CLASS' ? 'MAU_QUY_CHUNG.xlsx' : (type === 'BUDGET_MAJOR' ? 'MAU_NGANH_HOC.xlsx' : (type === 'STUDENT_TRANSFER' ? 'MAU_CHUYEN_NGANH.xlsx' : 'MAU_SINH_VIEN.xlsx'));
     XLSX.writeFile(wb, fileName);
   };
 
@@ -675,9 +679,10 @@ const App: React.FC = () => {
                   <Users size={18} className="text-purple-500" />
                 </div>
                 <div className="flex gap-2 w-full">
+                  <button onClick={() => downloadTemplate('STUDENT_TRANSFER')} className="flex-1 px-2 py-2.5 text-sm font-black border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors uppercase tracking-widest text-slate-600">TẢI MẪU</button>
                   <label className="flex-1 px-2 py-2.5 text-sm font-black bg-purple-50 text-purple-600 rounded-xl cursor-pointer hover:bg-purple-100 transition-colors text-center uppercase tracking-widest border border-purple-100">
                     <input type="file" className="hidden" onChange={handleTransferUpload} />
-                    TẢI FILE EXCEL LÊN
+                    TẢI LÊN
                   </label>
                 </div>
               </div>
