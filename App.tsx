@@ -17,6 +17,48 @@ interface Notification {
   message: string;
 }
 
+const CHUYEN_NGANH_MAP: Record<string, { nganh: string, khoa: string }> = {
+  'K01': { nganh: 'Kinh doanh quốc tế', khoa: 'Du lịch và Kinh doanh quốc tế' },
+  'K02': { nganh: 'Quản trị kinh doanh', khoa: 'Quản trị kinh doanh' },
+  'K03': { nganh: 'Quản trị dịch vụ du lịch và lữ hành', khoa: 'Du lịch và Kinh doanh quốc tế' },
+  'K04': { nganh: 'Kinh tế', khoa: 'Kinh tế' },
+  'K05': { nganh: 'Thống kê kinh tế', khoa: 'Kinh tế' },
+  'K06': { nganh: 'Kế toán', khoa: 'Kế toán' },
+  'K07': { nganh: 'Tài chính - Ngân hàng', khoa: 'Tài chính - Ngân hàng' },
+  'K08': { nganh: 'Kinh doanh thương mại', khoa: 'Thương mại điện tử - Marketing và Công nghệ số' },
+  'K09': { nganh: 'Quản lý nhà nước', khoa: 'Lý luận chính trị' },
+  'K10': { nganh: 'Kinh tế', khoa: 'Kinh tế' },
+  'K11': { nganh: 'Kinh tế', khoa: 'Kinh tế' },
+  'K12': { nganh: 'Marketing', khoa: 'Thương mại điện tử - Marketing và Công nghệ số' },
+  'K13': { nganh: 'Luật kinh tế', khoa: 'Luật' },
+  'K14': { nganh: 'Hệ thống thông tin quản lý', khoa: 'Thương mại điện tử - Marketing và Công nghệ số' },
+  'K15': { nganh: 'Tài chính - Ngân hàng', khoa: 'Tài chính - Ngân hàng' },
+  'K16': { nganh: 'Quản trị kinh doanh', khoa: 'Tài chính - Ngân hàng' },
+  'K17': { nganh: 'Quản trị nhân lực', khoa: 'Quản trị kinh doanh' },
+  'K18': { nganh: 'Kiểm toán', khoa: 'Kế toán' },
+  'K19': { nganh: 'Luật', khoa: 'Luật' },
+  'K20': { nganh: 'Kinh tế', khoa: 'Kinh tế' },
+  'K21': { nganh: 'Hệ thống thông tin quản lý', khoa: 'Thương mại điện tử - Marketing và Công nghệ số' },
+  'K22': { nganh: 'Thương mại điện tử', khoa: 'Thương mại điện tử - Marketing và Công nghệ số' },
+  'K23': { nganh: 'Quản trị khách sạn', khoa: 'Du lịch và Kinh doanh quốc tế' },
+  'K24': { nganh: 'Tài chính - Ngân hàng', khoa: 'Tài chính - Ngân hàng' },
+  'K25': { nganh: 'Quản trị kinh doanh', khoa: 'Quản trị kinh doanh' },
+  'K26': { nganh: 'Quản trị dịch vụ du lịch và lữ hành', khoa: 'Du lịch và Kinh doanh quốc tế' },
+  'K27': { nganh: 'Quản lý nhà nước', khoa: 'Lý luận chính trị' },
+  'K28': { nganh: 'Marketing', khoa: 'Thương mại điện tử - Marketing và Công nghệ số' },
+  'K29': { nganh: 'Khoa học dữ liệu', khoa: 'Thương mại điện tử - Marketing và Công nghệ số' },
+  'K30': { nganh: 'Quản trị kinh doanh', khoa: 'Quản trị kinh doanh' },
+  'K31': { nganh: 'Marketing', khoa: 'Thương mại điện tử - Marketing và Công nghệ số' },
+  'K32': { nganh: 'Kinh tế', khoa: 'Kinh tế' },
+  'K33': { nganh: 'Công nghệ tài chính', khoa: 'Tài chính - Ngân hàng' },
+  'KQT': { nganh: 'Kinh doanh quốc tế', khoa: 'Phòng Đào tạo' },
+  'K34': { nganh: 'Tài chính - Ngân hàng', khoa: 'Tài chính - Ngân hàng' },
+  'K35': { nganh: 'Kinh doanh quốc tế', khoa: 'Du lịch và Kinh doanh quốc tế' },
+  'K36': { nganh: 'Hệ thống thông tin quản lý', khoa: 'Thương mại điện tử - Marketing và Công nghệ số' },
+  'K37': { nganh: 'Luật kinh tế', khoa: 'Luật' },
+  'K38': { nganh: 'Quản trị dịch vụ du lịch và lữ hành', khoa: 'Du lịch và Kinh doanh quốc tế' }
+};
+
 const App: React.FC = () => {
   const [semesterCode, setSemesterCode] = useState('252');
   const [budgetClassData, setBudgetClassData] = useState<BudgetEntry[]>([]);
@@ -120,7 +162,7 @@ const App: React.FC = () => {
       }
     } else if (type === 'STUDENT_TRANSFER') {
       data = [
-        { 'STT': 1, 'MSV': '49K123', 'Họ lót': 'Nguyễn Văn', 'Tên': 'A', 'Lớp ban đầu': '49K.S', 'Lớp mới': '49K.T', 'Ngành ban đầu': 'Kinh tế', 'Ngành mới': 'Tài chính - Ngân hàng', 'Khoa mới': 'TÀI CHÍNH' }
+        { 'STT': 1, 'MSV': '49K123', 'Họ lót': 'Nguyễn Văn', 'Tên': 'A', 'Lớp ban đầu': '49K01.1', 'Lớp mới': '49K02.1' }
       ];
     }
     const ws = XLSX.utils.json_to_sheet(data);
@@ -262,9 +304,20 @@ const App: React.FC = () => {
         currentStudents.forEach(s => {
           const transferRecord = transferData.find(t => String(t['MSV']) === s.maSV || String(t['Mã sinh viên']) === s.maSV);
           if (transferRecord) {
-             const nganhCu = String(transferRecord['Ngành ban đầu'] || '').trim();
              const lopCu = String(transferRecord['Lớp ban đầu'] || '').trim();
-             const khoaCu = String(transferRecord['Khoa ban đầu'] || '').trim().toUpperCase();
+             let nganhCu = '';
+             let khoaCu = '';
+             
+             if (lopCu) {
+               const cnMatch = lopCu.match(/K\d{2}|KQT/i);
+               if (cnMatch) {
+                 const cn = cnMatch[0].toUpperCase();
+                 if (CHUYEN_NGANH_MAP[cn]) {
+                   nganhCu = CHUYEN_NGANH_MAP[cn].nganh;
+                   khoaCu = CHUYEN_NGANH_MAP[cn].khoa.toUpperCase();
+                 }
+               }
+             }
              
              let changed = false;
              if (nganhCu && nganhCu !== s.nganh) {
